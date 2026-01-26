@@ -603,7 +603,7 @@ def create_visualization(original_img, heatmap):
 # =========================
 def main():
     # Header
-    st.markdown('<p class="main-header">🧠 Brain Tumor Analysis System</p>', unsafe_allow_html=True)
+    st.markdown('<b><p class="main-header">🧠Brain Tumour Analysis System</p></b>', unsafe_allow_html=True)
     st.markdown('<p class="sub-header">AI-Powered Medical Imaging Analysis for Early Detection</p>', unsafe_allow_html=True)
     
     # Sidebar
