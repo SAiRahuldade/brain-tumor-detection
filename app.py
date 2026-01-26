@@ -44,13 +44,12 @@ st.markdown("""
     
     /* Main Background with Gradient */
     .stApp {
-        background: linear-gradient(135deg, #faf8f3 0%, #e8e4dc 100%);
-        background-attachment: fixed;
+       background: #ffffff;
     }
     
     /* Main Content Area */
     .main .block-container {
-        background: rgba(255, 255, 255, 0.95);
+        background: #ffffff;
         border-radius: 20px;
         padding: 3rem 2rem;
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
