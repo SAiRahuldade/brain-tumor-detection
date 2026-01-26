@@ -604,8 +604,7 @@ def create_visualization(original_img, heatmap):
 # MAIN APP
 # =========================
 def main():
-    # Header
-st.markdown("""
+    st.markdown("""
 <div class="hero-title">
     🧠 BRAIN TUMOR ANALYSIS SYSTEM
 </div>
