@@ -57,16 +57,18 @@ st.markdown("""
     }
     
     /* Header Styling */
-    .main-header {
-        font-size: 5.5rem;
-        font-weight: 900;
-        color: #000000;
-        text-align: center;
-        margin-bottom: 1rem;
-        letter-spacing: -2px;
-        text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.15);
-        line-height: 1.1;
-    }
+.main-header {
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    font-size: 6.5rem;
+    font-weight: 900;
+    color: #000000;
+    text-align: center;
+    padding: 3rem 1rem;
+    letter-spacing: 0.35rem;
+    line-height: 1.1;
+}
+
     
     .sub-header {
         text-align: center;
@@ -603,7 +605,12 @@ def create_visualization(original_img, heatmap):
 # =========================
 def main():
     # Header
-    st.markdown('<b><p class="main-header">🧠B r a i n    T u m o u r    A n a l y s i s     S y s t e m   </p></b>', unsafe_allow_html=True)
+   st.markdown("""
+<div class="hero-title">
+    🧠 BRAIN TUMOR ANALYSIS SYSTEM
+</div>
+""", unsafe_allow_html=True)
+
     st.markdown('<p class="sub-header">AI-Powered Medical Imaging Analysis for Early Detection</p>', unsafe_allow_html=True)
     
     # Sidebar
