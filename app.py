@@ -762,10 +762,6 @@ def create_architecture_diagram():
     ]
     
     for i, layer in enumerate(layers):
-        rect = plt.Rectangle((layer['x']-0.45, 4), 0.9, 2.5, 
-                            facecolor=layer['color'], edgecolor='#ffffff', 
-                            linewidth=1.5, alpha=0.8, 
-                            boxstyle='round,pad=0.05', joinstyle='round')
         from matplotlib.patches import FancyBboxPatch
         rect = FancyBboxPatch((layer['x']-0.45, 4), 0.9, 2.5,
                               boxstyle="round,pad=0.02,rounding_size=0.1",
