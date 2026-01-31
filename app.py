@@ -1,8 +1,8 @@
 # Fix threading issues with TensorFlow/Keras in Streamlit
 import os
-os.environ['OMP_NUM_THREADS'] = '1'
 os.environ['LOKY_MAX_CPU_COUNT'] = '2'
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
 import streamlit as st
 import tensorflow as tf
 import numpy as np
@@ -14,11 +14,10 @@ from tensorflow.keras.models import load_model
 from PIL import Image
 import io
 from datetime import datetime
-import threading
+
 import warnings
 warnings.filterwarnings('ignore')
-# Initialize thread lock for model prediction
-prediction_lock = threading.Lock()
+
 # =========================
 # PAGE CONFIG
 # =========================
@@ -28,6 +27,7 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
 # =========================
 # STUNNING CUSTOM CSS - GLASSMORPHISM + DARK THEME
 # =========================
@@ -488,18 +488,21 @@ st.markdown("""
     }
 </style>
 """, unsafe_allow_html=True)
+
 # =========================
 # CONFIG
 # =========================
 IMG_SIZE = 224
 MODEL_PATH = "brain_tumor_best.keras"
 CLASS_NAMES = ['glioma', 'meningioma', 'notumor', 'pituitary']
+
 TRAINING_HISTORY = {
     'accuracy': [0.66, 0.78, 0.82, 0.85, 0.86, 0.88, 0.89, 0.89, 0.90, 0.90, 0.89, 0.90, 0.85, 0.90, 0.76, 0.89, 0.85, 0.90, 0.87, 0.89, 0.90, 0.91, 0.92, 0.95, 0.94, 0.96, 0.83, 0.92, 0.94, 0.95],
     'val_accuracy': [0.23, 0.48, 0.80, 0.82, 0.79, 0.84, 0.80, 0.81, 0.85, 0.76, 0.83, 0.77, 0.78, 0.89, 0.76, 0.83, 0.85, 0.86, 0.90, 0.85, 0.58, 0.70, 0.92, 0.95, 0.84, 0.93, 0.65, 0.92, 0.94, 0.95],
     'loss': [1.11, 0.63, 0.50, 0.43, 0.40, 0.34, 0.32, 0.30, 0.28, 0.27, 0.30, 0.27, 0.40, 0.27, 0.62, 0.30, 0.40, 0.28, 0.35, 0.29, 0.27, 0.24, 0.21, 0.14, 0.17, 0.11, 0.45, 0.21, 0.17, 0.13],
     'val_loss': [7.56, 2.89, 0.63, 0.52, 0.56, 0.47, 0.53, 0.49, 0.42, 1.04, 0.51, 1.00, 0.65, 0.35, 1.13, 0.51, 0.44, 0.40, 0.32, 0.44, 1.66, 0.84, 0.25, 0.16, 0.48, 0.21, 2.15, 0.24, 0.18, 0.15]
 }
+
 TUMOR_INFO = {
     'glioma': {
         'name': 'Glioma',
@@ -538,6 +541,7 @@ TUMOR_INFO = {
         'color': '#10b981'
     }
 }
+
 # =========================
 # MODEL FUNCTIONS
 # =========================
@@ -549,16 +553,19 @@ def load_brain_tumor_model():
     except Exception as e:
         st.error(f"Error loading model: {e}")
         return None
+
 def get_last_conv_layer(model):
     for layer in model.layers[::-1]:
         if isinstance(layer, tf.keras.layers.Conv2D):
             return layer.name
     return None
+
 def preprocess_image(img):
     img = img.resize((IMG_SIZE, IMG_SIZE))
     img_array = np.array(img) / 255.0
     img_array = np.expand_dims(img_array, axis=0)
     return img_array.astype(np.float32)
+
 def generate_gradcam(model, img_array, last_conv_layer_name):
     img_tensor = tf.constant(img_array)
     
@@ -585,6 +592,7 @@ def generate_gradcam(model, img_array, last_conv_layer_name):
     heatmap = tf.maximum(heatmap, 0) / (tf.reduce_max(heatmap) + 1e-10)
     
     return heatmap.numpy(), int(pred_index), predictions.numpy()
+
 # =========================
 # VISUALIZATION FUNCTIONS
 # =========================
@@ -603,6 +611,7 @@ def create_dark_theme_plot():
         'legend.facecolor': '#18181b',
         'legend.edgecolor': '#3f3f46'
     })
+
 def plot_training_history():
     create_dark_theme_plot()
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
@@ -637,6 +646,7 @@ def plot_training_history():
     
     plt.tight_layout()
     return fig
+
 def plot_confusion_matrix():
     create_dark_theme_plot()
     cm = np.array([
@@ -680,6 +690,7 @@ def plot_confusion_matrix():
     
     plt.tight_layout()
     return fig
+
 def plot_class_distribution():
     create_dark_theme_plot()
     classes = ['Glioma', 'Meningioma', 'No Tumor', 'Pituitary']
@@ -709,6 +720,7 @@ def plot_class_distribution():
     
     plt.tight_layout()
     return fig
+
 def plot_model_metrics():
     create_dark_theme_plot()
     metrics = {
@@ -737,6 +749,7 @@ def plot_model_metrics():
     
     plt.tight_layout()
     return fig
+
 def create_architecture_diagram():
     create_dark_theme_plot()
     fig, ax = plt.subplots(figsize=(14, 7))
@@ -762,6 +775,10 @@ def create_architecture_diagram():
     ]
     
     for i, layer in enumerate(layers):
+        rect = plt.Rectangle((layer['x']-0.45, 4), 0.9, 2.5, 
+                            facecolor=layer['color'], edgecolor='#ffffff', 
+                            linewidth=1.5, alpha=0.8, 
+                            boxstyle='round,pad=0.05', joinstyle='round')
         from matplotlib.patches import FancyBboxPatch
         rect = FancyBboxPatch((layer['x']-0.45, 4), 0.9, 2.5,
                               boxstyle="round,pad=0.02,rounding_size=0.1",
@@ -797,11 +814,13 @@ def create_architecture_diagram():
     
     plt.tight_layout()
     return fig
+
 def estimate_tumor_area(heatmap):
     heatmap_resized = cv2.resize(heatmap, (IMG_SIZE, IMG_SIZE))
     mask = heatmap_resized > 0.5
     area_percentage = (np.sum(mask) / (IMG_SIZE * IMG_SIZE)) * 100
     return area_percentage
+
 def classify_severity(area, tumor_type):
     if tumor_type == 'notumor':
         return "None"
@@ -811,6 +830,7 @@ def classify_severity(area, tumor_type):
         return "Moderate"
     else:
         return "High"
+
 def get_recommendation(tumor_type, severity, confidence):
     if tumor_type == 'notumor':
         return ["Continue regular health monitoring. Schedule annual checkups."]
@@ -835,6 +855,7 @@ def get_recommendation(tumor_type, severity, confidence):
         recommendations.append("Maintain healthy lifestyle and regular checkups")
     
     return recommendations
+
 def create_visualization(original_img, heatmap):
     heatmap_resized = cv2.resize(heatmap, (original_img.size[0], original_img.size[1]))
     heatmap_colored = np.uint8(255 * heatmap_resized)
@@ -847,6 +868,7 @@ def create_visualization(original_img, heatmap):
     overlay = cv2.addWeighted(original_img_array, 0.6, heatmap_colored, 0.4, 0)
     
     return heatmap_resized, overlay
+
 # =========================
 # MAIN APP
 # =========================
@@ -1000,8 +1022,7 @@ def main():
             
             if st.button("🔬 Analyze Scan", type="primary", use_container_width=True):
                 with st.spinner("Analyzing brain scan with AI..."):
-                    with prediction_lock:
-                        heatmap, pred_index, predictions = generate_gradcam(model, img_array, last_conv_layer)
+                    heatmap, pred_index, predictions = generate_gradcam(model, img_array, last_conv_layer)
                     
                     tumor_type = CLASS_NAMES[pred_index]
                     confidence = float(predictions[0][pred_index] * 100)
@@ -1111,20 +1132,25 @@ def main():
 NEUROSCAN AI - BRAIN TUMOR ANALYSIS REPORT
 Generated: {timestamp}
 {'='*60}
+
 PRIMARY DIAGNOSIS
 Tumor Type: {tumor_info['name']}
 Confidence: {confidence:.2f}%
 Affected Area: {tumor_area:.2f}%
 Severity: {severity}
+
 TUMOR INFORMATION
 Description: {tumor_info['description']}
 Symptoms: {tumor_info['symptoms']}
 Treatment: {tumor_info['treatment']}
 Prognosis: {tumor_info['prognosis']}
+
 CLASSIFICATION PROBABILITIES
 {chr(10).join([f'{name.capitalize()}: {prob_data[name]:.2f}%' for name in CLASS_NAMES])}
+
 RECOMMENDATIONS
 {chr(10).join([f'{i}. {rec}' for i, rec in enumerate(recommendations, 1)])}
+
 DISCLAIMER
 This analysis is generated by an AI system and should not replace 
 professional medical diagnosis. Please consult with qualified 
@@ -1155,5 +1181,6 @@ healthcare providers for proper medical evaluation.
                     
                     st.markdown("---")
                     st.error("**MEDICAL DISCLAIMER:** This AI system is for educational purposes only. Always seek professional medical advice for diagnosis and treatment.")
+
 if __name__ == "__main__":
     main()
